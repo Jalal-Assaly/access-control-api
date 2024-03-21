@@ -9,6 +9,6 @@ import java.util.Set;
 @AllArgsConstructor
 public class AccessPolicyModel {
     private String id;
-    private AccessPointPolicyModel accessPointAttributes;
     private Set<UserPolicyModel> userAttributesSet;
+    private AccessPointPolicyModel accessPointAttributes;
 }
