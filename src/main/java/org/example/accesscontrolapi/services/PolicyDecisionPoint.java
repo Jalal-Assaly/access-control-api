@@ -74,5 +74,4 @@ public class PolicyDecisionPoint {
                 environmentAttributesModel.getCurrentTime().isBefore(endTime) &&
                 daysOfWeek.stream().anyMatch(day -> day.equalsIgnoreCase(environmentAttributesModel.getCurrentDayOfWeek()));
     }
-
 }
