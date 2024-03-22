@@ -61,7 +61,7 @@ public class PolicyDecisionPoint {
                 .filter(accessPointPolicy -> accessPointPolicy.getOccupancyLevel() >= accessPointRequestModel.getOccupancyLevel())
                 .peek(accessPointPolicy -> System.out.println("Occupancy level filter passed"))
                 .findAny()
-                .isPresent();
+                .isPresent() && accessPointRequestModel.getIsTampered().equals(false);
     }
 
     private Boolean evaluateEnvironmentConditions(UserRequestModel userRequestModel) {
