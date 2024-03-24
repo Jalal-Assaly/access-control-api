@@ -2,6 +2,7 @@ package org.example.accesscontrolapi.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.example.accesscontrolapi.models.requestmodels.AccessRequestModel;
+import org.example.accesscontrolapi.models.responsemodels.AccessResponseModel;
 import org.example.accesscontrolapi.services.PolicyDecisionPoint;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +19,9 @@ public class AccessController {
     private final PolicyDecisionPoint pdp;
 
     @PutMapping("/request")
-    public ResponseEntity<Boolean> evaluateAccessRequest(@RequestBody AccessRequestModel requestModel) {
+    public ResponseEntity<AccessResponseModel> evaluateAccessRequest(@RequestBody AccessRequestModel requestModel) {
         Boolean decision = pdp.evaluateAccessRequest(requestModel);
-        return new ResponseEntity<>(decision, HttpStatus.OK);
+        String reason = (decision) ? "Attributes are all matching" : "Attributes do not match access policy";
+        return new ResponseEntity<>(new AccessResponseModel(decision, reason), HttpStatus.OK);
     }
 }
