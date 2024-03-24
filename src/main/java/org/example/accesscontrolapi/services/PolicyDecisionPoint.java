@@ -1,6 +1,7 @@
 package org.example.accesscontrolapi.services;
 
 import lombok.RequiredArgsConstructor;
+import org.example.accesscontrolapi.exceptionhandler.customexceptions.AttributesMismatchException;
 import org.example.accesscontrolapi.models.policymodels.AccessPointPolicyModel;
 import org.example.accesscontrolapi.models.policymodels.AccessPolicyModel;
 import org.example.accesscontrolapi.models.policymodels.UserPolicyModel;
@@ -31,16 +32,24 @@ public class PolicyDecisionPoint {
         Set<UserPolicyModel> userPolicyModelSet = accessPolicyModel.getUserAttributesSet();
         AccessPointPolicyModel accessPointPolicyModel = accessPolicyModel.getAccessPointAttributes();
 
-        Boolean isSatisfiedUserPolicy = evaluateUserPolicy(userRequestModel, userPolicyModelSet);
-        Boolean isSatisfiedAccessPoint = evaluateAccessPointPolicy(accessPointRequestModel, accessPointPolicyModel);
-        Boolean isSatisfiedEnvironment = evaluateEnvironmentConditions(userRequestModel);
+        Boolean isSatisfiedUserPolicy;
+        Boolean isSatisfiedAccessPoint;
+        Boolean isSatisfiedEnvironment;
+
+        try {
+            isSatisfiedUserPolicy = evaluateUserPolicy(userRequestModel, userPolicyModelSet);
+            isSatisfiedAccessPoint = evaluateAccessPointPolicy(accessPointRequestModel, accessPointPolicyModel);
+            isSatisfiedEnvironment = evaluateEnvironmentConditions(userRequestModel);
+        } catch(NullPointerException exception) {
+            throw new AttributesMismatchException("Some attributes are missing in request or access policy");
+        }
 
         return isSatisfiedUserPolicy && isSatisfiedAccessPoint && isSatisfiedEnvironment;
     }
 
     private Boolean evaluateUserPolicy(UserRequestModel userRequestModel, Set<UserPolicyModel> userPolicyModelSet) {
         return userPolicyModelSet.stream()
-                .filter(userPolicy -> userPolicy.getDepartment().equals(userRequestModel.getDepartment()))
+                .filter(userPolicy -> userPolicy.getDepartment().equalsIgnoreCase(userRequestModel.getDepartment()))
                 .peek(userPolicy -> System.out.println("Department filter passed"))
                 .filter(userPolicy -> userPolicy.getAllowedRoles().contains(userRequestModel.getRole()))
                 .peek(userPolicy -> System.out.println("Role filter passed"))
@@ -56,7 +65,7 @@ public class PolicyDecisionPoint {
 
     private Boolean evaluateAccessPointPolicy(AccessPointRequestModel accessPointRequestModel, AccessPointPolicyModel accessPointPolicyModel) {
         return Stream.of(accessPointPolicyModel)
-                .filter(accessPointPolicy -> accessPointPolicy.getLocation().equals(accessPointRequestModel.getLocation()))
+                .filter(accessPointPolicy -> accessPointPolicy.getLocation().equalsIgnoreCase(accessPointRequestModel.getLocation()))
                 .peek(accessPointPolicy -> System.out.println("Location filter passed"))
                 .filter(accessPointPolicy -> accessPointPolicy.getOccupancyLevel() >= accessPointRequestModel.getOccupancyLevel())
                 .peek(accessPointPolicy -> System.out.println("Occupancy level filter passed"))

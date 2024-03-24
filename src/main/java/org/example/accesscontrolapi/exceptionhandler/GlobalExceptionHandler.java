@@ -1,5 +1,7 @@
 package org.example.accesscontrolapi.exceptionhandler;
 
+import org.example.accesscontrolapi.exceptionhandler.customexceptions.AttributesMismatchException;
+import org.example.accesscontrolapi.exceptionhandler.responsebodies.AttributesMismatchExceptionBody;
 import org.example.accesscontrolapi.exceptionhandler.responsebodies.WebClientResponseExceptionBody;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -20,5 +22,12 @@ public class GlobalExceptionHandler {
                 new WebClientResponseExceptionBody(exception.getResponseBodyAsString());
 
         return new ResponseEntity<>(body,status);
+    }
+
+    @ExceptionHandler(AttributesMismatchException.class)
+    public ResponseEntity<AttributesMismatchExceptionBody> handleEntityNotFoundException(AttributesMismatchException exception) {
+        HttpStatusCode status = HttpStatus.BAD_REQUEST;
+        AttributesMismatchExceptionBody entityNotFoundExceptionResponseBody = new AttributesMismatchExceptionBody(status, exception);
+        return new ResponseEntity<>(entityNotFoundExceptionResponseBody, status);
     }
 }
