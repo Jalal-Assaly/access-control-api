@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AccessPointRequestModel {
+public class AccessPointModel {
     @NotBlank
     private String id;
     @NotBlank

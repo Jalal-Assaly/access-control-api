@@ -1,7 +1,8 @@
 package org.example.accesscontrolapi.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.example.accesscontrolapi.models.requestmodels.AccessRequestModel;
+import org.example.accesscontrolapi.models.requestmodels.employeemodels.EmployeeAccessRequestModel;
+import org.example.accesscontrolapi.models.requestmodels.visitormodels.VisitorAccessRequestModel;
 import org.example.accesscontrolapi.models.responsemodels.AccessResponseModel;
 import org.example.accesscontrolapi.services.PolicyDecisionPoint;
 import org.springframework.http.HttpStatus;
@@ -13,15 +14,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/access-control")
+@RequestMapping("/access-control/request")
 public class AccessController {
 
     private final PolicyDecisionPoint pdp;
 
-    @PutMapping("/request")
-    public ResponseEntity<AccessResponseModel> evaluateAccessRequest(@RequestBody AccessRequestModel requestModel) {
+    @PutMapping("/employee")
+    public ResponseEntity<AccessResponseModel> evaluateEmployeeAccessRequest(@RequestBody EmployeeAccessRequestModel requestModel) {
         Boolean decision = pdp.evaluateAccessRequest(requestModel);
-        String reason = (decision) ? "Attributes are all matching" : "Attributes do not match access policy";
-        return new ResponseEntity<>(new AccessResponseModel(decision, reason), HttpStatus.OK);
+        return new ResponseEntity<>(new AccessResponseModel(decision), HttpStatus.OK);
+    }
+
+    @PutMapping("/visitor")
+    public ResponseEntity<AccessResponseModel> evaluateVisitorAccessRequest(@RequestBody VisitorAccessRequestModel requestModel) {
+        Boolean decision = pdp.evaluateAccessRequest(requestModel);
+        return new ResponseEntity<>(new AccessResponseModel(decision), HttpStatus.OK);
     }
 }

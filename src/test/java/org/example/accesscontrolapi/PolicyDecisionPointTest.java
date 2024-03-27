@@ -4,10 +4,10 @@ import org.example.accesscontrolapi.models.policymodels.AccessPointPolicyModel;
 import org.example.accesscontrolapi.models.policymodels.AccessPolicyModel;
 import org.example.accesscontrolapi.models.policymodels.EnvironmentModel;
 import org.example.accesscontrolapi.models.policymodels.UserPolicyModel;
-import org.example.accesscontrolapi.models.requestmodels.AccessPointRequestModel;
-import org.example.accesscontrolapi.models.requestmodels.AccessRequestModel;
+import org.example.accesscontrolapi.models.requestmodels.AccessPointModel;
+import org.example.accesscontrolapi.models.requestmodels.employeemodels.EmployeeAccessRequestModel;
 import org.example.accesscontrolapi.models.requestmodels.TimeSchedule;
-import org.example.accesscontrolapi.models.requestmodels.UserRequestModel;
+import org.example.accesscontrolapi.models.requestmodels.employeemodels.EmployeeModel;
 import org.example.accesscontrolapi.services.ExternalApiService;
 import org.example.accesscontrolapi.services.PolicyDecisionPoint;
 import org.example.accesscontrolapi.services.PolicyInformationPoint;
@@ -81,7 +81,7 @@ public class PolicyDecisionPointTest {
     @Test
     void evaluateAccessRequest_Success() {
         // Request Models
-        UserRequestModel userRequestModel = new UserRequestModel(
+        EmployeeModel employeeModel = new EmployeeModel(
                 "23",
                 "Manager",
                 "HR",
@@ -93,22 +93,22 @@ public class PolicyDecisionPointTest {
                 "Level 3",
                 "Full time"
         );
-        AccessPointRequestModel accessPointRequestModel = new AccessPointRequestModel(
+        AccessPointModel accessPointModel = new AccessPointModel(
                 "2",
                 "C311",
                 false,
                 30
         );
-        AccessRequestModel accessRequestModel = new AccessRequestModel(userRequestModel, accessPointRequestModel);
+        EmployeeAccessRequestModel employeeAccessRequestModel = new EmployeeAccessRequestModel(employeeModel, accessPointModel);
 
         when(apiService.fetchAccessPolicyByLocation(
-                accessRequestModel
-                        .getAccessPointRequestModel()
+                employeeAccessRequestModel
+                        .getAccessPointModel()
                         .getLocation())
         ).thenReturn(accessPolicyModel);
         when(pip.getEnvironmentAttributes()).thenReturn(environmentModel);
 
-        Boolean hasAccess = pdp.evaluateAccessRequest(accessRequestModel);
+        Boolean hasAccess = pdp.evaluateAccessRequest(employeeAccessRequestModel);
 
         verify(apiService).fetchAccessPolicyByLocation(any(String.class));
         verify(pip).getEnvironmentAttributes();
@@ -118,7 +118,7 @@ public class PolicyDecisionPointTest {
     @Test
     void evaluateAccessRequest_AllConditionsNotMet_Failed() {
         // Request Models
-        UserRequestModel userRequestModel = new UserRequestModel(
+        EmployeeModel employeeModel = new EmployeeModel(
                 "23",
                 "Technician",
                 "IT",
@@ -131,23 +131,23 @@ public class PolicyDecisionPointTest {
                 "Unemployed"
         );
 
-        AccessPointRequestModel accessPointRequestModel = new AccessPointRequestModel(
+        AccessPointModel accessPointModel = new AccessPointModel(
                 "2",
                 "C311",
                 true,
                 1000
         );
 
-        AccessRequestModel accessRequestModel = new AccessRequestModel(userRequestModel, accessPointRequestModel);
+        EmployeeAccessRequestModel employeeAccessRequestModel = new EmployeeAccessRequestModel(employeeModel, accessPointModel);
 
         when(apiService.fetchAccessPolicyByLocation(
-                accessRequestModel
-                        .getAccessPointRequestModel()
+                employeeAccessRequestModel
+                        .getAccessPointModel()
                         .getLocation())
         ).thenReturn(accessPolicyModel);
         when(pip.getEnvironmentAttributes()).thenReturn(environmentModel);
 
-        Boolean hasAccess = pdp.evaluateAccessRequest(accessRequestModel);
+        Boolean hasAccess = pdp.evaluateAccessRequest(employeeAccessRequestModel);
 
         verify(apiService).fetchAccessPolicyByLocation(any(String.class));
         verify(pip).getEnvironmentAttributes();
@@ -157,7 +157,7 @@ public class PolicyDecisionPointTest {
     @Test
     void evaluateAccessRequest_AccessPolicyNotFound_Failed() {
         // Request Models
-        UserRequestModel userRequestModel = new UserRequestModel(
+        EmployeeModel employeeModel = new EmployeeModel(
                 "23",
                 "Manager",
                 "HR",
@@ -169,23 +169,23 @@ public class PolicyDecisionPointTest {
                 "Level 3",
                 "Full time"
         );
-        AccessPointRequestModel accessPointRequestModel = new AccessPointRequestModel(
+        AccessPointModel accessPointModel = new AccessPointModel(
                 "2",
                 "D414", // ID not existing in policy
                 false,
                 30
         );
 
-        AccessRequestModel accessRequestModel = new AccessRequestModel(userRequestModel, accessPointRequestModel);
+        EmployeeAccessRequestModel employeeAccessRequestModel = new EmployeeAccessRequestModel(employeeModel, accessPointModel);
 
         when(apiService.fetchAccessPolicyByLocation(
-                accessRequestModel
-                        .getAccessPointRequestModel()
+                employeeAccessRequestModel
+                        .getAccessPointModel()
                         .getLocation())
         ).thenThrow(WebClientResponseException.class);
 
         // Act and Assert
-        assertThatThrownBy(() -> pdp.evaluateAccessRequest(accessRequestModel))
+        assertThatThrownBy(() -> pdp.evaluateAccessRequest(employeeAccessRequestModel))
                 .isInstanceOf(WebClientResponseException.class)
                 .hasMessage(null);
     }

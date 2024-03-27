@@ -7,19 +7,13 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UserRequestModel {
+public abstract class UserModel {
     @NotBlank
     private String id;
     @NotBlank
     private String role;
-    @NotBlank
-    private String department;
     @NotNull
     private TimeSchedule timeSchedule;
-    @NotNull
-    private Integer yearsOfExperience;
     @NotBlank
     private String clearanceLevel;
-    @NotBlank
-    private String employmentStatus;
 }

@@ -7,11 +7,8 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AccessRequestModel {
-    @NotNull
-    @JsonProperty("userAttributes")
-    private UserRequestModel userRequestModel;
+public abstract class AccessRequestModel {
     @NotNull
     @JsonProperty("accessPointAttributes")
-    private AccessPointRequestModel accessPointRequestModel;
+    private AccessPointModel accessPointModel;
 }

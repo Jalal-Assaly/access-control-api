@@ -12,14 +12,14 @@ public class ExternalApiService {
 
     public ExternalApiService() {
         this.webClient = WebClient.builder()
-                .baseUrl("http://localhost:8085/access-polices")
+                .baseUrl("http://localhost:8085/access-policies")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
 
     public AccessPolicyModel fetchAccessPolicyByLocation(String location) {
         return webClient.get()
-                .uri("/findAccessPolicy/{location}", location)
+                .uri("/find/location/{location}", location)
                 .retrieve()
                 .bodyToMono(AccessPolicyModel.class)
                 .block();
