@@ -8,7 +8,7 @@
 		<version>3.2.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>org.example</groupId>
+	<groupId>org.pacs</groupId>
 	<artifactId>access-control-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>access-control-api</name>
