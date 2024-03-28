@@ -13,6 +13,7 @@ import org.example.accesscontrolapi.models.requestmodels.employeemodels.Employee
 import org.example.accesscontrolapi.models.requestmodels.employeemodels.EmployeeModel;
 import org.example.accesscontrolapi.models.requestmodels.visitormodels.VisitorAccessRequestModel;
 import org.example.accesscontrolapi.models.requestmodels.visitormodels.VisitorModel;
+import org.example.accesscontrolapi.models.responsemodels.AccessResponseModel;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -24,9 +25,10 @@ import java.util.stream.Stream;
 public class PolicyDecisionPoint {
 
     private final PolicyInformationPoint pip;
+    private final AccessLogService accessLogService;
     private final ExternalApiService apiService;
 
-    public Boolean evaluateAccessRequest(AccessRequestModel requestModel) {
+    public AccessResponseModel evaluateAccessRequest(AccessRequestModel requestModel) {
 
         // Fetch access point attributes from request
         AccessPointModel accessPointModel = requestModel.getAccessPointModel();
@@ -56,7 +58,13 @@ public class PolicyDecisionPoint {
         } catch (NullPointerException exception) {
             throw new AttributesMismatchException("Some attributes are missing in request or access policy");
         }
-        return isSatisfiedUserPolicy && isSatisfiedAccessPoint && isSatisfiedEnvironment;
+
+        Boolean decision = isSatisfiedUserPolicy && isSatisfiedAccessPoint && isSatisfiedEnvironment;
+        AccessResponseModel accessResponseModel = new AccessResponseModel(decision);
+        // Log access attempt
+        accessLogService.logAccess(requestModel, accessPolicyModel, accessResponseModel);
+
+        return accessResponseModel;
     }
 
     private Boolean evaluateEmployeePolicy(EmployeeModel employeeModel, Set<UserPolicyModel> userPolicyModelSet) {
