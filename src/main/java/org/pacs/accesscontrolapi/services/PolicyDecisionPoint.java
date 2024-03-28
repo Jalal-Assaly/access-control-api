@@ -71,37 +71,22 @@ public class PolicyDecisionPoint {
     private Boolean evaluateEmployeePolicy(EmployeeModel employeeModel, Set<UserPolicyModel> userPolicyModelSet) {
         return userPolicyModelSet.stream()
                 .filter(userPolicy -> userPolicy.getDepartment().equalsIgnoreCase(employeeModel.getDepartment()))
-                .peek(userPolicy -> System.out.println("Department filter passed"))
                 .filter(userPolicy -> userPolicy.getAllowedRoles().contains(employeeModel.getRole()))
-                .peek(userPolicy -> System.out.println("Role filter passed"))
                 .filter(userPolicy -> userPolicy.getMinimumYearsOfExperience() <= employeeModel.getYearsOfExperience())
-                .peek(userPolicy -> System.out.println("Years of experience filter passed"))
                 .filter(userPolicy -> userPolicy.getAllowedClearanceLevels().contains(employeeModel.getClearanceLevel()))
-                .peek(userPolicy -> System.out.println("Clearance level filter passed"))
-                .filter(userPolicy -> userPolicy.getAllowedEmploymentStatus().contains(employeeModel.getEmploymentStatus()))
-                .peek(userPolicy -> System.out.println("Employment status filter passed"))
-                .findAny()
-                .isPresent();
+                .anyMatch(userPolicy -> userPolicy.getAllowedEmploymentStatus().contains(employeeModel.getEmploymentStatus()));
     }
 
     private Boolean evaluateVisitorPolicy(VisitorModel visitorModel, Set<UserPolicyModel> userPolicyModelSet) {
         return userPolicyModelSet.stream()
                 .filter(userPolicy -> userPolicy.getAllowedRoles().contains(visitorModel.getRole()))
-                .peek(userPolicy -> System.out.println("Role filter passed"))
-                .filter(userPolicy -> userPolicy.getAllowedClearanceLevels().contains(visitorModel.getClearanceLevel()))
-                .peek(userPolicy -> System.out.println("Clearance level filter passed"))
-                .findAny()
-                .isPresent();
+                .anyMatch(userPolicy -> userPolicy.getAllowedClearanceLevels().contains(visitorModel.getClearanceLevel()));
     }
 
     private Boolean evaluateAccessPointPolicy(AccessPointModel accessPointModel, AccessPointPolicyModel accessPointPolicyModel) {
         return Stream.of(accessPointPolicyModel)
                 .filter(accessPointPolicy -> accessPointPolicy.getLocation().equalsIgnoreCase(accessPointModel.getLocation()))
-                .peek(accessPointPolicy -> System.out.println("Location filter passed"))
-                .filter(accessPointPolicy -> accessPointPolicy.getOccupancyLevel() >= accessPointModel.getOccupancyLevel())
-                .peek(accessPointPolicy -> System.out.println("Occupancy level filter passed"))
-                .findAny()
-                .isPresent() && accessPointModel.getIsTampered().equals(false);
+                .anyMatch(accessPointPolicy -> accessPointPolicy.getOccupancyLevel() >= accessPointModel.getOccupancyLevel()) && accessPointModel.getIsTampered().equals(false);
     }
 
     private Boolean evaluateEnvironmentConditions(UserModel userModel) {
