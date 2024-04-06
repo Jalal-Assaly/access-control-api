@@ -81,6 +81,7 @@ public class PolicyDecisionPoint {
 
     private Boolean evaluateVisitorPolicy(VisitorModel visitorModel, Set<UserPolicyModel> userPolicyModelSet) {
         return userPolicyModelSet.stream()
+                .filter(userPolicy -> userPolicy.getDepartment().equalsIgnoreCase(visitorModel.getDepartment()))
                 .filter(userPolicy -> userPolicy.getAllowedRoles().contains(visitorModel.getRole()))
                 .anyMatch(userPolicy -> userPolicy.getAllowedClearanceLevels().contains(visitorModel.getClearanceLevel()));
     }

@@ -9,16 +9,14 @@ import org.pacs.accesscontrolapi.models.requestmodels.UserModel;
 @Setter
 @Getter
 public class EmployeeModel extends UserModel {
-    @NotBlank
-    private String department;
+
     @NotNull
     private Integer yearsOfExperience;
     @NotBlank
     private String employmentStatus;
 
     public EmployeeModel(String id, String role, String department, TimeSchedule timeSchedule, Integer yearsOfExperience, String clearanceLevel, String employmentStatus) {
-        super(id, role, timeSchedule, clearanceLevel);
-        this.department = department;
+        super(id, role,department, timeSchedule, clearanceLevel);
         this.yearsOfExperience = yearsOfExperience;
         this.employmentStatus = employmentStatus;
     }

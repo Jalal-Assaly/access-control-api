@@ -13,6 +13,8 @@ public abstract class UserModel {
     private String id;
     @NotBlank
     private String role;
+    @NotBlank
+    private String department;
     @NotNull
     @Valid
     private TimeSchedule timeSchedule;
