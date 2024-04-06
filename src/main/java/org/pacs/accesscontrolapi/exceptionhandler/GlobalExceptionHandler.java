@@ -1,7 +1,7 @@
 package org.pacs.accesscontrolapi.exceptionhandler;
 
-import org.pacs.accesscontrolapi.exceptionhandler.customexceptions.AttributesMismatchException;
-import org.pacs.accesscontrolapi.exceptionhandler.responsebodies.AttributesMismatchExceptionBody;
+import jakarta.validation.ConstraintViolationException;
+import org.pacs.accesscontrolapi.exceptionhandler.responsebodies.ConstraintViolationExceptionResponseBody;
 import org.pacs.accesscontrolapi.exceptionhandler.responsebodies.WebClientResponseExceptionBody;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -24,10 +24,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body,status);
     }
 
-    @ExceptionHandler(AttributesMismatchException.class)
-    public ResponseEntity<AttributesMismatchExceptionBody> handleEntityNotFoundException(AttributesMismatchException exception) {
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ConstraintViolationExceptionResponseBody>
+    handleFieldsValidationException(ConstraintViolationException exception) {
+
         HttpStatusCode status = HttpStatus.BAD_REQUEST;
-        AttributesMismatchExceptionBody entityNotFoundExceptionResponseBody = new AttributesMismatchExceptionBody(status, exception);
-        return new ResponseEntity<>(entityNotFoundExceptionResponseBody, status);
+        ConstraintViolationExceptionResponseBody body =
+                new ConstraintViolationExceptionResponseBody(status, exception);
+
+        return new ResponseEntity<>(body, status);
     }
 }

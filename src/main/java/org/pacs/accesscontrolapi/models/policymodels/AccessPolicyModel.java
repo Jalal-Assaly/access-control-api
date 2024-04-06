@@ -1,6 +1,7 @@
 package org.pacs.accesscontrolapi.models.policymodels;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -16,10 +17,12 @@ public class AccessPolicyModel {
     private String id;
 
     @NotEmpty
+    @Valid
     @JsonProperty("userAttributesSet")
     private Set<UserPolicyModel> userAttributesSet;
 
     @NotNull
+    @Valid
     @JsonProperty("accessPointAttributes")
     private AccessPointPolicyModel accessPointAttributes;
 }

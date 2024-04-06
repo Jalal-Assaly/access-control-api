@@ -1,6 +1,7 @@
 package org.pacs.accesscontrolapi.models.requestmodels.employeemodels;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import org.pacs.accesscontrolapi.models.requestmodels.AccessRequestModel;
 @Getter
 public class EmployeeAccessRequestModel extends AccessRequestModel {
     @NotNull
+    @Valid
     @JsonProperty("userAttributes")
     private EmployeeModel employeeModel;
 

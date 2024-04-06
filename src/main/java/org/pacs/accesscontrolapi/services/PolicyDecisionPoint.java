@@ -1,7 +1,8 @@
 package org.pacs.accesscontrolapi.services;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.pacs.accesscontrolapi.exceptionhandler.customexceptions.AttributesMismatchException;
+
 import org.pacs.accesscontrolapi.models.policymodels.AccessPointPolicyModel;
 import org.pacs.accesscontrolapi.models.policymodels.AccessPolicyModel;
 import org.pacs.accesscontrolapi.models.policymodels.EnvironmentModel;
@@ -15,12 +16,14 @@ import org.pacs.accesscontrolapi.models.requestmodels.visitormodels.VisitorAcces
 import org.pacs.accesscontrolapi.models.requestmodels.visitormodels.VisitorModel;
 import org.pacs.accesscontrolapi.models.responsemodels.AccessResponseModel;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalTime;
 import java.util.Set;
 import java.util.stream.Stream;
 
 @Service
+@Validated
 @RequiredArgsConstructor
 public class PolicyDecisionPoint {
 
@@ -28,35 +31,34 @@ public class PolicyDecisionPoint {
     private final AccessLogService accessLogService;
     private final ExternalApiService apiService;
 
-    public AccessResponseModel evaluateAccessRequest(AccessRequestModel requestModel) {
+    public AccessResponseModel evaluateAccessRequest(@Valid AccessRequestModel requestModel) {
 
         // Fetch access point attributes from request
         AccessPointModel accessPointModel = requestModel.getAccessPointModel();
 
         // Fetch all policy models
         AccessPolicyModel accessPolicyModel = apiService.fetchAccessPolicyByLocation(accessPointModel.getLocation());
+
+
         Set<UserPolicyModel> userPolicyModelSet = accessPolicyModel.getUserAttributesSet();
         AccessPointPolicyModel accessPointPolicyModel = accessPolicyModel.getAccessPointAttributes();
 
-        Boolean isSatisfiedUserPolicy = false;
-        Boolean isSatisfiedAccessPoint = false;
-        Boolean isSatisfiedEnvironment = false;
+        boolean isSatisfiedUserPolicy = false;
+        boolean isSatisfiedAccessPoint = false;
+        boolean isSatisfiedEnvironment = false;
 
-        try {
-            // Fetch user attributes from request and evaluate
-            if (requestModel instanceof EmployeeAccessRequestModel employeeRequest) {
-                EmployeeModel employeeModel = employeeRequest.getEmployeeModel();
-                isSatisfiedUserPolicy = evaluateEmployeePolicy(employeeModel, userPolicyModelSet);
-                isSatisfiedAccessPoint = evaluateAccessPointPolicy(accessPointModel, accessPointPolicyModel);
-                isSatisfiedEnvironment = evaluateEnvironmentConditions(employeeModel);
-            } else if (requestModel instanceof VisitorAccessRequestModel visitorRequest) {
-                VisitorModel visitorModel = visitorRequest.getVisitorModel();
-                isSatisfiedUserPolicy = evaluateVisitorPolicy(visitorModel, userPolicyModelSet);
-                isSatisfiedAccessPoint = evaluateAccessPointPolicy(accessPointModel, accessPointPolicyModel);
-                isSatisfiedEnvironment = evaluateEnvironmentConditions(visitorModel);
-            }
-        } catch (NullPointerException exception) {
-            throw new AttributesMismatchException("Some attributes are missing in request or access policy");
+
+        // Fetch user attributes from request and evaluate
+        if (requestModel instanceof EmployeeAccessRequestModel employeeRequest) {
+            EmployeeModel employeeModel = employeeRequest.getEmployeeModel();
+            isSatisfiedUserPolicy = evaluateEmployeePolicy(employeeModel, userPolicyModelSet);
+            isSatisfiedAccessPoint = evaluateAccessPointPolicy(accessPointModel, accessPointPolicyModel);
+            isSatisfiedEnvironment = evaluateEnvironmentConditions(employeeModel);
+        } else if (requestModel instanceof VisitorAccessRequestModel visitorRequest) {
+            VisitorModel visitorModel = visitorRequest.getVisitorModel();
+            isSatisfiedUserPolicy = evaluateVisitorPolicy(visitorModel, userPolicyModelSet);
+            isSatisfiedAccessPoint = evaluateAccessPointPolicy(accessPointModel, accessPointPolicyModel);
+            isSatisfiedEnvironment = evaluateEnvironmentConditions(visitorModel);
         }
 
         Boolean decision = isSatisfiedUserPolicy && isSatisfiedAccessPoint && isSatisfiedEnvironment;
