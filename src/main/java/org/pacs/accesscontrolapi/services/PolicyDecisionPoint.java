@@ -39,14 +39,14 @@ public class PolicyDecisionPoint {
         // Fetch all policy models
         AccessPolicyModel accessPolicyModel = apiService.fetchAccessPolicyByLocation(accessPointModel.getLocation());
 
-
+        // Extract user and access point policies
         Set<UserPolicyModel> userPolicyModelSet = accessPolicyModel.getUserAttributesSet();
         AccessPointPolicyModel accessPointPolicyModel = accessPolicyModel.getAccessPointAttributes();
 
+        // Define access flags
         boolean isSatisfiedUserPolicy = false;
         boolean isSatisfiedAccessPoint = false;
         boolean isSatisfiedEnvironment = false;
-
 
         // Fetch user attributes from request and evaluate
         if (requestModel instanceof EmployeeAccessRequestModel employeeRequest) {
@@ -61,12 +61,16 @@ public class PolicyDecisionPoint {
             isSatisfiedEnvironment = evaluateEnvironmentConditions(visitorModel);
         }
 
+        // Evaluate flags
         Boolean decision = isSatisfiedUserPolicy && isSatisfiedAccessPoint && isSatisfiedEnvironment;
+
+        // Create access response model
         AccessResponseModel accessResponseModel = new AccessResponseModel(decision);
 
         // Log access attempt
         accessLogService.logAccess(requestModel, accessPolicyModel, accessResponseModel);
 
+        // Return access decision
         return accessResponseModel;
     }
 
@@ -89,7 +93,8 @@ public class PolicyDecisionPoint {
     private Boolean evaluateAccessPointPolicy(AccessPointModel accessPointModel, AccessPointPolicyModel accessPointPolicyModel) {
         return Stream.of(accessPointPolicyModel)
                 .filter(accessPointPolicy -> accessPointPolicy.getLocation().equalsIgnoreCase(accessPointModel.getLocation()))
-                .anyMatch(accessPointPolicy -> accessPointPolicy.getOccupancyLevel() >= accessPointModel.getOccupancyLevel()) && accessPointModel.getIsTampered().equals(false);
+                .anyMatch(accessPointPolicy -> accessPointPolicy.getOccupancyLevel() >= accessPointModel.getOccupancyLevel())
+                && accessPointModel.getIsTampered().equals(false);
     }
 
     private Boolean evaluateEnvironmentConditions(UserModel userModel) {
