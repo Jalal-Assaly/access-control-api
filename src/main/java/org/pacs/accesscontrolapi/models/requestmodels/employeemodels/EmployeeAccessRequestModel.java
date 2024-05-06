@@ -13,7 +13,7 @@ import org.pacs.accesscontrolapi.models.requestmodels.AccessRequestModel;
 public class EmployeeAccessRequestModel extends AccessRequestModel {
     @NotNull
     @Valid
-    @JsonProperty("userAttributes")
+    @JsonProperty("UAT")
     private EmployeeModel employeeModel;
 
     public EmployeeAccessRequestModel(EmployeeModel employeeModel, AccessPointModel accessPointModel) {

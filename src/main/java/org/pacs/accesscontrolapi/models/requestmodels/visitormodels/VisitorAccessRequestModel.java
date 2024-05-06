@@ -13,7 +13,7 @@ import org.pacs.accesscontrolapi.models.requestmodels.AccessRequestModel;
 public class VisitorAccessRequestModel extends AccessRequestModel {
     @NotNull
     @Valid
-    @JsonProperty("userAttributes")
+    @JsonProperty("UAT")
     private VisitorModel visitorModel;
 
     public VisitorAccessRequestModel(VisitorModel visitorModel, AccessPointModel accessPointModel) {

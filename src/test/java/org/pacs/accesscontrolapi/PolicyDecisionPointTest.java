@@ -1,9 +1,6 @@
 package org.pacs.accesscontrolapi;
 
-import org.pacs.accesscontrolapi.models.policymodels.AccessPointPolicyModel;
-import org.pacs.accesscontrolapi.models.policymodels.AccessPolicyModel;
-import org.pacs.accesscontrolapi.models.policymodels.EnvironmentModel;
-import org.pacs.accesscontrolapi.models.policymodels.UserPolicyModel;
+import org.pacs.accesscontrolapi.models.policymodels.*;
 import org.pacs.accesscontrolapi.models.requestmodels.AccessPointModel;
 import org.pacs.accesscontrolapi.models.requestmodels.AccessRequestModel;
 import org.pacs.accesscontrolapi.models.requestmodels.employeemodels.EmployeeAccessRequestModel;
@@ -50,6 +47,7 @@ public class PolicyDecisionPointTest {
     AccessPointPolicyModel accessPointPolicyModel;
     AccessPolicyModel accessPolicyModel;
     EnvironmentModel environmentModel;
+
     @BeforeEach
     void init() {
         // Policy Models
@@ -57,14 +55,12 @@ public class PolicyDecisionPointTest {
                 new UserPolicyModel(
                         "HR",
                         List.of("Manager", "Assistant", "Recruiter"),
-                        5,
                         List.of("Level 3", "Level 4", "Level 5"),
                         List.of("Full time", "Part time")
                 ),
                 new UserPolicyModel(
                         "R&D",
                         List.of("Manager", "Researcher", "Product Manager", "Tech lead"),
-                        3,
                         List.of("Level 2", "Level 3", "Level 4", "Level 5"),
                         List.of("Full time", "Part time", "Collaborator")
                 )
@@ -80,7 +76,7 @@ public class PolicyDecisionPointTest {
         environmentModel = new EnvironmentModel(
                 LocalTime.now(),
                 LocalDate.now().getDayOfWeek().toString(),
-                false);
+                EmergencyStatus.NO_EMERGENCY);
     }
 
     @Test
@@ -94,7 +90,6 @@ public class PolicyDecisionPointTest {
                         LocalTime.of(0, 0),
                         LocalTime.of(23, 59),
                         Set.of("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")),
-                7,
                 "Level 3",
                 "Full time"
         );
@@ -112,13 +107,13 @@ public class PolicyDecisionPointTest {
                         .getLocation())
         ).thenReturn(accessPolicyModel);
         doNothing().when(accessLogService).logAccess(employeeAccessRequestModel, accessPolicyModel, new AccessResponseModel(true));
-        when(pip.getEnvironmentAttributes()).thenReturn(environmentModel);
+        when(pip.getEnvironmentModel()).thenReturn(environmentModel);
 
         AccessResponseModel accessResponseModel = pdp.evaluateAccessRequest(employeeAccessRequestModel);
 
         verify(apiService).fetchAccessPolicyByLocation(any(String.class));
         verify(accessLogService).logAccess(any(AccessRequestModel.class), any(AccessPolicyModel.class), any(AccessResponseModel.class));
-        verify(pip).getEnvironmentAttributes();
+        verify(pip, times(2)).getEnvironmentModel();
         assertThat(accessResponseModel.getDecision()).isTrue();
     }
 
@@ -133,7 +128,6 @@ public class PolicyDecisionPointTest {
                         LocalTime.of(3, 0),
                         LocalTime.of(4, 0),
                         Set.of("Wednesday")),
-                0,
                 "Level 1",
                 "Unemployed"
         );
@@ -153,14 +147,14 @@ public class PolicyDecisionPointTest {
                         .getLocation())
         ).thenReturn(accessPolicyModel);
         doNothing().when(accessLogService).logAccess(employeeAccessRequestModel, accessPolicyModel, new AccessResponseModel(false));
-        when(pip.getEnvironmentAttributes()).thenReturn(environmentModel);
+        when(pip.getEnvironmentModel()).thenReturn(environmentModel);
 
         AccessResponseModel accessResponseModel = pdp.evaluateAccessRequest(employeeAccessRequestModel);
 
         verify(apiService).fetchAccessPolicyByLocation(any(String.class));
         verify(accessLogService).logAccess(any(AccessRequestModel.class), any(AccessPolicyModel.class), any(AccessResponseModel.class));
 
-        verify(pip).getEnvironmentAttributes();
+        verify(pip, times(2)).getEnvironmentModel();
         assertThat(accessResponseModel.getDecision()).isFalse();
     }
 
@@ -175,7 +169,6 @@ public class PolicyDecisionPointTest {
                         LocalTime.of(0, 0),
                         LocalTime.of(23, 59),
                         Set.of("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")),
-                7,
                 "Level 3",
                 "Full time"
         );

@@ -15,5 +15,5 @@ public class EnvironmentModel {
     @NotBlank
     private String currentDayOfWeek;
     @NotNull
-    private Boolean emergencyStatus;
+    private EmergencyStatus emergencyStatus;
 }

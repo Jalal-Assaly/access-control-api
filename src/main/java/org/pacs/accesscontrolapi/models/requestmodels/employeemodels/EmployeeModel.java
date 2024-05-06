@@ -1,7 +1,7 @@
 package org.pacs.accesscontrolapi.models.requestmodels.employeemodels;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.pacs.accesscontrolapi.models.requestmodels.TimeSchedule;
 import org.pacs.accesscontrolapi.models.requestmodels.UserModel;
@@ -10,14 +10,12 @@ import org.pacs.accesscontrolapi.models.requestmodels.UserModel;
 @Getter
 public class EmployeeModel extends UserModel {
 
-    @NotNull
-    private Integer yearsOfExperience;
     @NotBlank
+    @JsonProperty("ES")
     private String employmentStatus;
 
-    public EmployeeModel(String id, String role, String department, TimeSchedule timeSchedule, Integer yearsOfExperience, String clearanceLevel, String employmentStatus) {
+    public EmployeeModel(String id, String role, String department, TimeSchedule timeSchedule, String clearanceLevel, String employmentStatus) {
         super(id, role,department, timeSchedule, clearanceLevel);
-        this.yearsOfExperience = yearsOfExperience;
         this.employmentStatus = employmentStatus;
     }
 }

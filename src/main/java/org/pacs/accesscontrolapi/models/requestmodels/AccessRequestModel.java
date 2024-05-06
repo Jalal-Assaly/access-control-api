@@ -11,6 +11,6 @@ import lombok.Data;
 public abstract class AccessRequestModel {
     @NotNull
     @Valid
-    @JsonProperty("accessPointAttributes")
+    @JsonProperty("APA")
     private AccessPointModel accessPointModel;
 }

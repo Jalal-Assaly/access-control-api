@@ -3,10 +3,7 @@ package org.pacs.accesscontrolapi.services;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import org.pacs.accesscontrolapi.models.policymodels.AccessPointPolicyModel;
-import org.pacs.accesscontrolapi.models.policymodels.AccessPolicyModel;
-import org.pacs.accesscontrolapi.models.policymodels.EnvironmentModel;
-import org.pacs.accesscontrolapi.models.policymodels.UserPolicyModel;
+import org.pacs.accesscontrolapi.models.policymodels.*;
 import org.pacs.accesscontrolapi.models.requestmodels.AccessPointModel;
 import org.pacs.accesscontrolapi.models.requestmodels.AccessRequestModel;
 import org.pacs.accesscontrolapi.models.requestmodels.UserModel;
@@ -61,14 +58,31 @@ public class PolicyDecisionPoint {
             isSatisfiedEnvironment = evaluateEnvironmentConditions(visitorModel);
         }
 
-        // Evaluate flags
-        Boolean decision = isSatisfiedUserPolicy && isSatisfiedAccessPoint && isSatisfiedEnvironment;
+        EmergencyStatus emergencyStatus = pip.getEnvironmentModel().getEmergencyStatus();
+        AccessResponseModel accessResponseModel;
 
-        // Create access response model
-        AccessResponseModel accessResponseModel = new AccessResponseModel(decision);
+        if(emergencyStatus.equals(EmergencyStatus.NO_EMERGENCY)) {
+            // Evaluate flags
+            Boolean decision = isSatisfiedUserPolicy && isSatisfiedAccessPoint && isSatisfiedEnvironment;
 
-        // Log access attempt
-        accessLogService.logAccess(requestModel, accessPolicyModel, accessResponseModel);
+            // Update access point attributes
+            apiService.updateAccessPointAttributesById(accessPointModel.getId(), accessPointModel); // updates access point attributes
+
+            // Create access response model
+            accessResponseModel = new AccessResponseModel(decision);
+
+            // Log access attempt
+            accessLogService.logAccess(requestModel, accessPolicyModel, accessResponseModel);
+
+        } else if(emergencyStatus.equals(EmergencyStatus.EMERGENCY_CLOSED)) {
+            accessResponseModel = new AccessResponseModel(false);
+
+        } else if(emergencyStatus.equals(EmergencyStatus.EMERGENCY_OPENED)) {
+            accessResponseModel = new AccessResponseModel(true);
+
+        } else {
+            accessResponseModel = new AccessResponseModel(false);
+        }
 
         // Return access decision
         return accessResponseModel;
@@ -78,7 +92,6 @@ public class PolicyDecisionPoint {
         return userPolicyModelSet.stream()
                 .filter(userPolicy -> userPolicy.getDepartment().equalsIgnoreCase(employeeModel.getDepartment()))
                 .filter(userPolicy -> userPolicy.getAllowedRoles().contains(employeeModel.getRole()))
-                .filter(userPolicy -> userPolicy.getMinimumYearsOfExperience() <= employeeModel.getYearsOfExperience())
                 .filter(userPolicy -> userPolicy.getAllowedClearanceLevels().contains(employeeModel.getClearanceLevel()))
                 .anyMatch(userPolicy -> userPolicy.getAllowedEmploymentStatus().contains(employeeModel.getEmploymentStatus()));
     }
@@ -93,7 +106,7 @@ public class PolicyDecisionPoint {
     private Boolean evaluateAccessPointPolicy(AccessPointModel accessPointModel, AccessPointPolicyModel accessPointPolicyModel) {
         return Stream.of(accessPointPolicyModel)
                 .filter(accessPointPolicy -> accessPointPolicy.getLocation().equalsIgnoreCase(accessPointModel.getLocation()))
-                .anyMatch(accessPointPolicy -> accessPointPolicy.getOccupancyLevel() >= accessPointModel.getOccupancyLevel())
+                .anyMatch(accessPointPolicy -> accessPointPolicy.getMaxOccupancyLevel() >= accessPointModel.getOccupancyLevel())
                 && accessPointModel.getIsTampered().equals(false);
     }
 
@@ -101,10 +114,10 @@ public class PolicyDecisionPoint {
         LocalTime startTime = userModel.getTimeSchedule().getStartTime();
         LocalTime endTime = userModel.getTimeSchedule().getEndTime();
         Set<String> daysOfWeek = userModel.getTimeSchedule().getDaysOfWeek();
-        EnvironmentModel environmentAttributesModel = pip.getEnvironmentAttributes();
+        EnvironmentModel environmentAttributesModel = pip.getEnvironmentModel();
 
         return environmentAttributesModel.getCurrentTime().isAfter(startTime) &&
                 environmentAttributesModel.getCurrentTime().isBefore(endTime) &&
-                daysOfWeek.stream().anyMatch(day -> day.equalsIgnoreCase(environmentAttributesModel.getCurrentDayOfWeek()));
+                daysOfWeek.stream().anyMatch(day -> day.substring(0,3).equalsIgnoreCase(environmentAttributesModel.getCurrentDayOfWeek().substring(0,3)));
     }
 }

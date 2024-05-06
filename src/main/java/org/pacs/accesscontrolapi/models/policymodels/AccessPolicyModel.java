@@ -14,15 +14,16 @@ import java.util.Set;
 @AllArgsConstructor
 public class AccessPolicyModel {
     @NotBlank
+    @JsonProperty("ID")
     private String id;
 
     @NotEmpty
     @Valid
-    @JsonProperty("userAttributesSet")
+    @JsonProperty("UAS")
     private Set<UserPolicyModel> userAttributesSet;
 
     @NotNull
     @Valid
-    @JsonProperty("accessPointAttributes")
+    @JsonProperty("APA")
     private AccessPointPolicyModel accessPointAttributes;
 }
