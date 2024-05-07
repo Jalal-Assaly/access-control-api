@@ -66,13 +66,15 @@ public class PolicyDecisionPoint {
             Boolean decision = isSatisfiedUserPolicy && isSatisfiedAccessPoint && isSatisfiedEnvironment;
 
             // Update access point attributes
-            apiService.updateLiveAccessPointAttributesById(accessPointModel.getId(), accessPointModel); // updates access point attributes
+            apiService.updateLiveAccessPointAttributesById(accessPointModel.getLocation(), accessPointModel); // updates access point attributes
 
             // Create access response model
             accessResponseModel = new AccessResponseModel(decision);
 
             // Log access attempt
             accessLogService.logAccess(requestModel, accessPolicyModel, accessResponseModel);
+
+            System.out.println("ACCESS CONTROL PERFORMED: " + accessResponseModel.getDecision());
 
         } else if(emergencyStatus.equals(EmergencyStatus.EMERGENCY_CLOSED)) {
             accessResponseModel = new AccessResponseModel(false);
