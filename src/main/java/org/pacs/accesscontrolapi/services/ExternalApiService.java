@@ -32,13 +32,14 @@ public class ExternalApiService {
                 .block();
     }
 
-    public void updateAccessPointAttributesById(String location, AccessPointModel accessPointModel) {
+    public void updateLiveAccessPointAttributesById(String id, AccessPointModel accessPointModel) {
         webClient2.put()
-                .uri("/live-update/{location}", location)
+                .uri("/live-update/{id}", id)
                 .bodyValue(accessPointModel)
                 .retrieve()
                 .toBodilessEntity()
-                .then()
-                .subscribe();
+                .block();
+//                .then()
+//                .subscribe();
     }
 }

@@ -66,7 +66,7 @@ public class PolicyDecisionPoint {
             Boolean decision = isSatisfiedUserPolicy && isSatisfiedAccessPoint && isSatisfiedEnvironment;
 
             // Update access point attributes
-            apiService.updateAccessPointAttributesById(accessPointModel.getId(), accessPointModel); // updates access point attributes
+            apiService.updateLiveAccessPointAttributesById(accessPointModel.getId(), accessPointModel); // updates access point attributes
 
             // Create access response model
             accessResponseModel = new AccessResponseModel(decision);
