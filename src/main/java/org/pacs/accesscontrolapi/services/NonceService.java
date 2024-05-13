@@ -14,12 +14,18 @@ public class NonceService {
 
     public Boolean verifyNonce(String userID, String nonce) {
         // First, fetch nonce from trackers database
-        NonceTracker nonceTracker = nonceRepository.findById(userID)
+        NonceTracker nonceTracker = nonceRepository.findNonceTrackerByUserID(userID)
                 .orElseThrow(() -> new EntityNotFoundException("User ID not found"));
 
         // Check
         Integer index = nonceTracker.getIndex();
+
+        System.out.println(index);
+
         String existingNonce = nonceTracker.getNonceSequence().get(index);
+
+        System.out.println(existingNonce);
+
         if(existingNonce.equals(nonce)) {
             nonceTracker.setIndex(index + 1);
             nonceRepository.save(nonceTracker);

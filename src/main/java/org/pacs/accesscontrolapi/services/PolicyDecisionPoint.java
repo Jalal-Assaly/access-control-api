@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.pacs.accesscontrolapi.models.policymodels.*;
 import org.pacs.accesscontrolapi.models.requestmodels.AccessPointModel;
-import org.pacs.accesscontrolapi.models.requestmodels.AccessRequestModel;
 import org.pacs.accesscontrolapi.models.requestmodels.UserModel;
 import org.pacs.accesscontrolapi.models.requestmodels.employeemodels.EmployeeAccessRequestModel;
 import org.pacs.accesscontrolapi.models.requestmodels.employeemodels.EmployeeModel;
@@ -27,8 +26,16 @@ public class PolicyDecisionPoint {
     private final PolicyInformationPoint pip;
     private final AccessLogService accessLogService;
     private final ExternalApiService apiService;
+    private final NonceService nonceService;
 
-    public AccessResponseModel evaluateAccessRequest(@Valid AccessRequestModel requestModel) {
+    public AccessResponseModel evaluateEmployeeAccessRequest(@Valid EmployeeAccessRequestModel requestModel, String userId, String nonce) {
+        // Check if nonces are matching
+        Boolean isValidNonce = nonceService.verifyNonce(userId, nonce);
+        if (!isValidNonce) {
+            return new AccessResponseModel(false);
+        }
+
+        System.out.println(isValidNonce);
 
         // Fetch access point attributes from request
         AccessPointModel accessPointModel = requestModel.getAccessPointModel();
@@ -40,23 +47,11 @@ public class PolicyDecisionPoint {
         Set<UserPolicyModel> userPolicyModelSet = accessPolicyModel.getUserAttributesSet();
         AccessPointPolicyModel accessPointPolicyModel = accessPolicyModel.getAccessPointAttributes();
 
-        // Define access flags
-        boolean isSatisfiedUserPolicy = false;
-        boolean isSatisfiedAccessPoint = false;
-        boolean isSatisfiedEnvironment = false;
-
         // Fetch user attributes from request and evaluate
-        if (requestModel instanceof EmployeeAccessRequestModel employeeRequest) {
-            EmployeeModel employeeModel = employeeRequest.getEmployeeModel();
-            isSatisfiedUserPolicy = evaluateEmployeePolicy(employeeModel, userPolicyModelSet);
-            isSatisfiedAccessPoint = evaluateAccessPointPolicy(accessPointModel, accessPointPolicyModel);
-            isSatisfiedEnvironment = evaluateEnvironmentConditions(employeeModel);
-        } else if (requestModel instanceof VisitorAccessRequestModel visitorRequest) {
-            VisitorModel visitorModel = visitorRequest.getVisitorModel();
-            isSatisfiedUserPolicy = evaluateVisitorPolicy(visitorModel, userPolicyModelSet);
-            isSatisfiedAccessPoint = evaluateAccessPointPolicy(accessPointModel, accessPointPolicyModel);
-            isSatisfiedEnvironment = evaluateEnvironmentConditions(visitorModel);
-        }
+        EmployeeModel employeeModel = requestModel.getEmployeeModel();
+        boolean isSatisfiedUserPolicy = evaluateEmployeePolicy(employeeModel, userPolicyModelSet);
+        boolean isSatisfiedAccessPoint = evaluateAccessPointPolicy(accessPointModel, accessPointPolicyModel);
+        boolean isSatisfiedEnvironment = evaluateEnvironmentConditions(employeeModel);
 
         EmergencyStatus emergencyStatus = pip.getEnvironmentModel().getEmergencyStatus();
         AccessResponseModel accessResponseModel;
@@ -72,9 +67,74 @@ public class PolicyDecisionPoint {
             accessResponseModel = new AccessResponseModel(decision);
 
             // Log access attempt
-            accessLogService.logAccess(requestModel, accessPolicyModel, accessResponseModel);
+            accessLogService.logEmployeeAccess(requestModel, accessPolicyModel, accessResponseModel);
 
-            System.out.println("ACCESS CONTROL PERFORMED: " + accessResponseModel.getDecision());
+        } else if(emergencyStatus.equals(EmergencyStatus.EMERGENCY_CLOSED)) {
+            accessResponseModel = new AccessResponseModel(false);
+
+        } else if(emergencyStatus.equals(EmergencyStatus.EMERGENCY_OPENED)) {
+            accessResponseModel = new AccessResponseModel(true);
+
+        } else {
+            accessResponseModel = new AccessResponseModel(false);
+        }
+
+        // Return access decision
+        return accessResponseModel;
+    }
+
+    public AccessResponseModel evaluateVisitorAccessRequest(@Valid VisitorAccessRequestModel requestModel, String userId, String nonce) {
+        // Check if nonces are matching
+        Boolean isValidNonce = nonceService.verifyNonce(userId, nonce);
+        if (!isValidNonce) {
+            return new AccessResponseModel(false);
+        }
+
+        System.out.println(isValidNonce);
+
+        // Fetch access point attributes from request
+        AccessPointModel accessPointModel = requestModel.getAccessPointModel();
+
+        System.out.println(accessPointModel);
+
+        // Fetch all policy models
+        AccessPolicyModel accessPolicyModel = apiService.fetchAccessPolicyByLocation(accessPointModel.getLocation());
+
+        System.out.println(accessPolicyModel);
+
+        // Extract user and access point policies
+        Set<UserPolicyModel> userPolicyModelSet = accessPolicyModel.getUserAttributesSet();
+        AccessPointPolicyModel accessPointPolicyModel = accessPolicyModel.getAccessPointAttributes();
+
+        // Fetch user attributes from request and evaluate
+        VisitorModel visitorModel = requestModel.getVisitorModel();
+        boolean isSatisfiedUserPolicy = evaluateVisitorPolicy(visitorModel, userPolicyModelSet);
+        boolean isSatisfiedAccessPoint = evaluateAccessPointPolicy(accessPointModel, accessPointPolicyModel);
+        boolean isSatisfiedEnvironment = evaluateEnvironmentConditions(visitorModel);
+
+
+        System.out.println(isSatisfiedUserPolicy);
+        System.out.println(isSatisfiedAccessPoint);
+        System.out.println(isSatisfiedEnvironment);
+
+        EmergencyStatus emergencyStatus = pip.getEnvironmentModel().getEmergencyStatus();
+
+        System.out.println(emergencyStatus);
+
+        AccessResponseModel accessResponseModel;
+
+        if(emergencyStatus.equals(EmergencyStatus.NO_EMERGENCY)) {
+            // Evaluate flags
+            Boolean decision = isSatisfiedUserPolicy && isSatisfiedAccessPoint && isSatisfiedEnvironment;
+
+            // Update access point attributes
+            apiService.updateLiveAccessPointAttributesById(accessPointModel.getLocation(), accessPointModel); // updates access point attributes
+
+            // Create access response model
+            accessResponseModel = new AccessResponseModel(decision);
+
+            // Log access attempt
+            accessLogService.logVisitorAccess(requestModel, accessPolicyModel, accessResponseModel);
 
         } else if(emergencyStatus.equals(EmergencyStatus.EMERGENCY_CLOSED)) {
             accessResponseModel = new AccessResponseModel(false);

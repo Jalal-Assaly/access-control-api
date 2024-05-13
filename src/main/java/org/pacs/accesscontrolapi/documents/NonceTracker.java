@@ -2,7 +2,7 @@ package org.pacs.accesscontrolapi.documents;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Document(collection = "nonceTrackers")
 public class NonceTracker {
-    @Indexed(unique = true)
+    @Id
     String userID;
     List<String> nonceSequence;
     Integer index;

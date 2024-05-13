@@ -1,7 +1,10 @@
 package org.pacs.accesscontrolapi.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.pacs.accesscontrolapi.documents.AccessLog;
+import org.pacs.accesscontrolapi.documents.EmployeeAccessLog;
+import org.pacs.accesscontrolapi.documents.VisitorAccessLog;
+import org.pacs.accesscontrolapi.models.logmodels.EmployeeHistoryModel;
+import org.pacs.accesscontrolapi.models.logmodels.VisitorHistoryModel;
 import org.pacs.accesscontrolapi.models.policymodels.EmergencyStatus;
 import org.pacs.accesscontrolapi.models.policymodels.EnvironmentModel;
 import org.pacs.accesscontrolapi.models.requestmodels.employeemodels.EmployeeAccessRequestModel;
@@ -25,13 +28,31 @@ public class AccessController {
     private final PolicyDecisionPoint pdp;
     private final PolicyInformationPoint pip;
 
-    @GetMapping("list/logs")
-    public ResponseEntity<List<AccessLog>> getAllAccessLogs() {
-        List<AccessLog> accessLogs = accessLogService.getAllAccessLogs();
-        return new ResponseEntity<>(accessLogs, HttpStatus.OK);
+    @GetMapping("/list/logs/employees")
+    public ResponseEntity<List<EmployeeAccessLog>> getAllEmployeeAccessLogs() {
+        List<EmployeeAccessLog> employeeAccessLogs = accessLogService.getAllEmployeeAccessLogs();
+        return new ResponseEntity<>(employeeAccessLogs, HttpStatus.OK);
     }
 
-    @GetMapping("fetch/environment")
+    @GetMapping("/list/logs/visitors")
+    public ResponseEntity<List<VisitorAccessLog>> getAllVisitorAccessLogs() {
+        List<VisitorAccessLog> visitorAccessLogs = accessLogService.getAllVisitorAccessLogs();
+        return new ResponseEntity<>(visitorAccessLogs, HttpStatus.OK);
+    }
+
+    @GetMapping("/employee/list/history/id/{id}")
+    public ResponseEntity<List<EmployeeHistoryModel>> getEmployeeHistory(@PathVariable String id) {
+        List<EmployeeHistoryModel> employeeAccessLogs = accessLogService.getEmployeeHistory(id);
+        return new ResponseEntity<>(employeeAccessLogs, HttpStatus.OK);
+    }
+
+    @GetMapping("/visitor/list/history/id/{id}")
+    public ResponseEntity<List<VisitorHistoryModel>> getVisitorHistory(@PathVariable String id) {
+        List<VisitorHistoryModel> visitorAccessLogs = accessLogService.getVisitorHistory(id);
+        return new ResponseEntity<>(visitorAccessLogs, HttpStatus.OK);
+    }
+
+    @GetMapping("/fetch/environment")
     public ResponseEntity<EnvironmentModel> getEnvironment() {
         EnvironmentModel environmentModel = pip.getEnvironmentModel();
         return new ResponseEntity<>(environmentModel, HttpStatus.OK);
@@ -39,13 +60,13 @@ public class AccessController {
 
     @PutMapping("/request/employee")
     public ResponseEntity<AccessResponseModel> evaluateEmployeeAccessRequest(@RequestBody EmployeeAccessRequestModel requestModel) {
-        AccessResponseModel accessResponseModel = pdp.evaluateAccessRequest(requestModel);
+        AccessResponseModel accessResponseModel = pdp.evaluateEmployeeAccessRequest(requestModel, requestModel.getEmployeeModel().getId(), requestModel.getNonce());
         return new ResponseEntity<>(accessResponseModel, HttpStatus.OK);
     }
 
     @PutMapping("/request/visitor")
     public ResponseEntity<AccessResponseModel> evaluateVisitorAccessRequest(@RequestBody VisitorAccessRequestModel requestModel) {
-        AccessResponseModel accessResponseModel = pdp.evaluateAccessRequest(requestModel);
+        AccessResponseModel accessResponseModel = pdp.evaluateVisitorAccessRequest(requestModel, requestModel.getVisitorModel().getId(), requestModel.getNonce());
         return new ResponseEntity<>(accessResponseModel, HttpStatus.OK);
     }
 

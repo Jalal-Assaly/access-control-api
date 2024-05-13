@@ -3,8 +3,9 @@ package org.pacs.accesscontrolapi.documents;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.pacs.accesscontrolapi.models.policymodels.AccessPolicyModel;
-import org.pacs.accesscontrolapi.models.requestmodels.AccessRequestModel;
+import org.pacs.accesscontrolapi.models.requestmodels.employeemodels.EmployeeAccessRequestModel;
 import org.pacs.accesscontrolapi.models.responsemodels.AccessResponseModel;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
@@ -13,10 +14,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
 @Data
-@Document("accessLogs")
-public class AccessLog {
+@Document("employeeAccessLogs")
+@RequiredArgsConstructor
+public class EmployeeAccessLog {
     @Transient
-    public static final String SEQUENCE_NAME = "access_policies_sequence";
+    public static final String SEQUENCE_NAME = "employee_logs_sequence";
 
     @Id
     private String id;
@@ -25,15 +27,9 @@ public class AccessLog {
     private LocalDateTime dateTime;
 
     @JsonProperty("accessRequest")
-    private AccessRequestModel accessRequestModel;
+    private final EmployeeAccessRequestModel accessRequestModel;
     @JsonProperty("accessPolicy")
-    private AccessPolicyModel accessPolicyModel;
+    private final AccessPolicyModel accessPolicyModel;
     @JsonProperty("accessResponse")
-    private AccessResponseModel accessResponseModel;
-
-    public AccessLog(AccessRequestModel accessRequestModel, AccessPolicyModel accessPolicyModel, AccessResponseModel accessResponseModel) {
-        this.accessRequestModel = accessRequestModel;
-        this.accessPolicyModel = accessPolicyModel;
-        this.accessResponseModel = accessResponseModel;
-    }
+    private final AccessResponseModel accessResponseModel;
 }

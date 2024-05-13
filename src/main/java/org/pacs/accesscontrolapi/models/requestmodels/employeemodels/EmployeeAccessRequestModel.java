@@ -6,18 +6,22 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.pacs.accesscontrolapi.models.requestmodels.AccessPointModel;
-import org.pacs.accesscontrolapi.models.requestmodels.AccessRequestModel;
 
 @Setter
 @Getter
-public class EmployeeAccessRequestModel extends AccessRequestModel {
+public class EmployeeAccessRequestModel {
     @NotNull
     @Valid
     @JsonProperty("UAT")
     private EmployeeModel employeeModel;
 
-    public EmployeeAccessRequestModel(EmployeeModel employeeModel, AccessPointModel accessPointModel) {
-        super(accessPointModel);
-        this.employeeModel = employeeModel;
-    }
+    @NotNull
+    @Valid
+    @JsonProperty("APA")
+    private AccessPointModel accessPointModel;
+
+    @NotNull
+    @Valid
+    @JsonProperty("NC")
+    private String nonce;
 }
