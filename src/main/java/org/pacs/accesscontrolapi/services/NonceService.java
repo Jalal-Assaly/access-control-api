@@ -6,6 +6,8 @@ import org.pacs.accesscontrolapi.documents.NonceTracker;
 import org.pacs.accesscontrolapi.repositories.NonceRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class NonceService {
@@ -17,17 +19,18 @@ public class NonceService {
         NonceTracker nonceTracker = nonceRepository.findNonceTrackerByUserID(userID)
                 .orElseThrow(() -> new EntityNotFoundException("User ID not found"));
 
-        // Check
+        // Fetch nonce
         Integer index = nonceTracker.getIndex();
 
-        System.out.println(index);
+        List<String> nonceSequence = nonceTracker.getNonceSequence();
+        List<String> remainingNonces = nonceTracker.getNonceSequence().subList(index+1, nonceSequence.size());
 
-        String existingNonce = nonceTracker.getNonceSequence().get(index);
+        System.out.println(nonce);
+        System.out.println(remainingNonces);
 
-        System.out.println(existingNonce);
-
-        if(existingNonce.equals(nonce)) {
-            nonceTracker.setIndex(index + 1);
+        if(remainingNonces.contains(nonce)) {
+            Integer updatedNonceIndex = nonceSequence.indexOf(nonce);
+            nonceTracker.setIndex(updatedNonceIndex);
             nonceRepository.save(nonceTracker);
             return true;
         } else {
