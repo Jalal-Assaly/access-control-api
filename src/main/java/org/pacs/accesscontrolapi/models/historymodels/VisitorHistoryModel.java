@@ -1,4 +1,4 @@
-package org.pacs.accesscontrolapi.models.logmodels;
+package org.pacs.accesscontrolapi.models.historymodels;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class EmployeeHistoryModel {
+public class VisitorHistoryModel {
     @JsonProperty("ID")
     private String id;
     @JsonProperty("LC")

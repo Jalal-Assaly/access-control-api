@@ -35,8 +35,6 @@ public class PolicyDecisionPoint {
             return new AccessResponseModel(false);
         }
 
-        System.out.println(isValidNonce);
-
         // Fetch access point attributes from request
         AccessPointModel accessPointModel = requestModel.getAccessPointModel();
 
@@ -90,12 +88,8 @@ public class PolicyDecisionPoint {
             return new AccessResponseModel(false);
         }
 
-        System.out.println(isValidNonce);
-
         // Fetch access point attributes from request
         AccessPointModel accessPointModel = requestModel.getAccessPointModel();
-
-        System.out.println(accessPointModel);
 
         // Fetch all policy models
         AccessPolicyModel accessPolicyModel = apiService.fetchAccessPolicyByLocation(accessPointModel.getLocation());
@@ -111,7 +105,6 @@ public class PolicyDecisionPoint {
         boolean isSatisfiedUserPolicy = evaluateVisitorPolicy(visitorModel, userPolicyModelSet);
         boolean isSatisfiedAccessPoint = evaluateAccessPointPolicy(accessPointModel, accessPointPolicyModel);
         boolean isSatisfiedEnvironment = evaluateEnvironmentConditions(visitorModel);
-
 
         System.out.println(isSatisfiedUserPolicy);
         System.out.println(isSatisfiedAccessPoint);
