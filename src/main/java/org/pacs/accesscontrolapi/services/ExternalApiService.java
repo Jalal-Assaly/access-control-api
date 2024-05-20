@@ -16,12 +16,12 @@ public class ExternalApiService {
     @Autowired
     public ExternalApiService(WebClient.Builder webClientBuilder) {
         this.webClient1 = webClientBuilder
-                .baseUrl("http://access-policy-management-api/access-policies")
+                .baseUrl("http://ACCESS-POLICY-MANAGEMENT-API/access-policies")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
 
         this.webClient2 = webClientBuilder
-                .baseUrl("http://attributes-management-api/access-points-attributes")
+                .baseUrl("http://ATTRIBUTES-MANAGEMENT-API/access-points-attributes")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
