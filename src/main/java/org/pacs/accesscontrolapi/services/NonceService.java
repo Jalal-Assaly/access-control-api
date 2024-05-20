@@ -15,6 +15,8 @@ public class NonceService {
     private final NonceRepository nonceRepository;
 
     public Boolean verifyNonce(String userID, String nonce) {
+
+        System.out.println(userID);
         // First, fetch nonce from trackers database
         NonceTracker nonceTracker = nonceRepository.findNonceTrackerByUserID(userID)
                 .orElseThrow(() -> new EntityNotFoundException("User ID not found"));
