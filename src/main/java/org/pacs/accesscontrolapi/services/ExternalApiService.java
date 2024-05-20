@@ -2,6 +2,7 @@ package org.pacs.accesscontrolapi.services;
 
 import org.pacs.accesscontrolapi.models.policymodels.AccessPolicyModel;
 import org.pacs.accesscontrolapi.models.requestmodels.AccessPointModel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -12,14 +13,15 @@ public class ExternalApiService {
     private final WebClient webClient1;
     private final WebClient webClient2;
 
-    public ExternalApiService() {
-        this.webClient1 = WebClient.builder()
-                .baseUrl("http://localhost:8085/access-policies")
+    @Autowired
+    public ExternalApiService(WebClient.Builder webClientBuilder) {
+        this.webClient1 = webClientBuilder
+                .baseUrl("http://access-policy-management-api/access-policies")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
 
-        this.webClient2 = WebClient.builder()
-                .baseUrl("http://localhost:8082/access-points-attributes")
+        this.webClient2 = webClientBuilder
+                .baseUrl("http://attributes-management-api/access-points-attributes")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
