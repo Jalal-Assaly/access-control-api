@@ -25,13 +25,13 @@ public class NonceService {
         Integer index = nonceTracker.getIndex();
 
         List<String> nonceSequence = nonceTracker.getNonceSequence();
-        List<String> remainingNonces = nonceTracker.getNonceSequence().subList(index+1, nonceSequence.size());
+        List<String> remainingNonces = nonceTracker.getNonceSequence().subList(index, nonceSequence.size());
 
         System.out.println(nonce);
         System.out.println(remainingNonces);
 
         if(remainingNonces.contains(nonce)) {
-            Integer updatedNonceIndex = nonceSequence.indexOf(nonce);
+            Integer updatedNonceIndex = nonceSequence.indexOf(nonce) + 1;
             nonceTracker.setIndex(updatedNonceIndex);
             nonceRepository.save(nonceTracker);
             return true;

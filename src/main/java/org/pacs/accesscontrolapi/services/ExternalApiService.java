@@ -21,7 +21,7 @@ public class ExternalApiService {
                 .build();
 
         this.webClient2 = webClientBuilder
-                .baseUrl("http://ATTRIBUTES-MANAGEMENT-API/access-points-attributes")
+                .baseUrl("http://ATTRIBUTES-MANAGEMENT-API/attributes-management/access-points-attributes")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }

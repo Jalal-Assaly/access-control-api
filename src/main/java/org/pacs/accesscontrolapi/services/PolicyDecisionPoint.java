@@ -94,8 +94,6 @@ public class PolicyDecisionPoint {
         // Fetch all policy models
         AccessPolicyModel accessPolicyModel = apiService.fetchAccessPolicyByLocation(accessPointModel.getLocation());
 
-        System.out.println(accessPolicyModel);
-
         // Extract user and access point policies
         Set<UserPolicyModel> userPolicyModelSet = accessPolicyModel.getUserAttributesSet();
         AccessPointPolicyModel accessPointPolicyModel = accessPolicyModel.getAccessPointAttributes();
@@ -106,14 +104,7 @@ public class PolicyDecisionPoint {
         boolean isSatisfiedAccessPoint = evaluateAccessPointPolicy(accessPointModel, accessPointPolicyModel);
         boolean isSatisfiedEnvironment = evaluateEnvironmentConditions(visitorModel);
 
-        System.out.println(isSatisfiedUserPolicy);
-        System.out.println(isSatisfiedAccessPoint);
-        System.out.println(isSatisfiedEnvironment);
-
         EmergencyStatus emergencyStatus = pip.getEnvironmentModel().getEmergencyStatus();
-
-        System.out.println(emergencyStatus);
-
         AccessResponseModel accessResponseModel;
 
         if(emergencyStatus.equals(EmergencyStatus.NO_EMERGENCY)) {

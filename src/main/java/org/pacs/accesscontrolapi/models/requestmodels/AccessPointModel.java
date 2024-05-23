@@ -10,9 +10,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class AccessPointModel {
     @NotBlank
-    @JsonProperty("ID")
-    private String id;
-    @NotBlank
     @JsonProperty("LC")
     private String location;
     @NotNull
