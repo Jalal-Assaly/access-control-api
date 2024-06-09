@@ -75,4 +75,16 @@ public class AccessController {
         pip.setEnvironmentEmergencyStatus(emergencyStatus);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @DeleteMapping("delete/employee/log/{id}")
+    public ResponseEntity<Void> deleteEmployeeLog(@PathVariable String id) {
+        accessLogService.deleteEmployeeLog(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("delete/visitor/log/{id}")
+    public ResponseEntity<Void> deleteVisitorLog(@PathVariable String id) {
+        accessLogService.deleteVisitorLog(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

@@ -87,6 +87,18 @@ public class AccessLogService {
         visitorAccessLogRepository.save(logEntry);
     }
 
+    public void deleteEmployeeLog(String id) {
+        EmployeeAccessLog logEntry = employeeAccessLogRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee access log not found"));
+        employeeAccessLogRepository.delete(logEntry);
+    }
+
+    public void deleteVisitorLog(String id) {
+        VisitorAccessLog logEntry = visitorAccessLogRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Visitor access log not found"));
+        visitorAccessLogRepository.delete(logEntry);
+    }
+
     private String generateEmployeeLogsSequence() {
         DatabaseSequence counter = mongoOperations.findAndModify(query(where("_id").is(EmployeeAccessLog.SEQUENCE_NAME)),
                 new Update().inc("seq",1), options().returnNew(true).upsert(true),
