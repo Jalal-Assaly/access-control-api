@@ -47,6 +47,9 @@ public class PolicyDecisionPoint {
 
         // Fetch user attributes from request and evaluate
         EmployeeModel employeeModel = requestModel.getEmployeeModel();
+
+        System.out.println(employeeModel);
+
         boolean isSatisfiedUserPolicy = evaluateEmployeePolicy(employeeModel, userPolicyModelSet);
         boolean isSatisfiedAccessPoint = evaluateAccessPointPolicy(accessPointModel, accessPointPolicyModel);
         boolean isSatisfiedEnvironment = evaluateEnvironmentConditions(employeeModel);
@@ -100,6 +103,7 @@ public class PolicyDecisionPoint {
 
         // Fetch user attributes from request and evaluate
         VisitorModel visitorModel = requestModel.getVisitorModel();
+
         boolean isSatisfiedUserPolicy = evaluateVisitorPolicy(visitorModel, userPolicyModelSet);
         boolean isSatisfiedAccessPoint = evaluateAccessPointPolicy(accessPointModel, accessPointPolicyModel);
         boolean isSatisfiedEnvironment = evaluateEnvironmentConditions(visitorModel);
@@ -176,11 +180,27 @@ public class PolicyDecisionPoint {
         LocalTime startTime = userModel.getTimeSchedule().getStartTime();
         LocalTime endTime = userModel.getTimeSchedule().getEndTime();
         Set<String> daysOfWeek = userModel.getTimeSchedule().getDaysOfWeek();
+
         EnvironmentModel environmentAttributesModel = pip.getEnvironmentModel();
 
-        boolean decision = environmentAttributesModel.getCurrentTime().isAfter(startTime) &&
-                environmentAttributesModel.getCurrentTime().isBefore(endTime) &&
-                daysOfWeek.stream().anyMatch(day -> day.substring(0,3).equalsIgnoreCase(environmentAttributesModel.getCurrentDayOfWeek().substring(0,3)));
+        // Update current time in attributes
+        environmentAttributesModel.setCurrentTime(LocalTime.now());
+        LocalTime currentTime = environmentAttributesModel.getCurrentTime();
+        String currentDayOfWeek = environmentAttributesModel.getCurrentDayOfWeek().substring(0, 3);
+
+        boolean isTimeWithinRange;
+        if (startTime.isBefore(endTime)) {
+            // Time schedule is within the same day
+            isTimeWithinRange = !currentTime.isBefore(startTime) && !currentTime.isAfter(endTime);
+        } else {
+            // Time schedule spans across midnight
+            isTimeWithinRange = !currentTime.isBefore(startTime) || !currentTime.isAfter(endTime);
+        }
+
+        boolean isDayOfWeekMatch = daysOfWeek.stream()
+                .anyMatch(day -> day.substring(0, 3).equalsIgnoreCase(currentDayOfWeek));
+
+        boolean decision = isTimeWithinRange && isDayOfWeekMatch;
 
         if(decision) {
             System.out.println("Time schedule filter passed");
