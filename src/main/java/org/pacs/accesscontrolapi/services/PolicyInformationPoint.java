@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 
 @Getter
 @Service
@@ -23,5 +24,15 @@ public class PolicyInformationPoint {
 
     public void setEnvironmentEmergencyStatus(EmergencyStatus emergencyStatus) {
         environmentModel.setEmergencyStatus(emergencyStatus);
+    }
+
+    public LocalTime getCurrentTime() {
+        environmentModel.setCurrentTime(LocalTime.now().truncatedTo(ChronoUnit.MINUTES));
+        return environmentModel.getCurrentTime();
+    }
+
+    public String getCurrentDayOfWeek() {
+        environmentModel.setCurrentDayOfWeek(LocalDateTime.now().getDayOfWeek().toString().substring(0,3));
+        return environmentModel.getCurrentDayOfWeek();
     }
 }

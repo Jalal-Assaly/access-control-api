@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalTime;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -179,14 +180,14 @@ public class PolicyDecisionPoint {
     private Boolean evaluateEnvironmentConditions(UserModel userModel) {
         LocalTime startTime = userModel.getTimeSchedule().getStartTime();
         LocalTime endTime = userModel.getTimeSchedule().getEndTime();
-        Set<String> daysOfWeek = userModel.getTimeSchedule().getDaysOfWeek();
+        Set<String> daysOfWeek = userModel.getTimeSchedule()
+                .getDaysOfWeek().stream()
+                .map(String::toUpperCase)
+                .collect(Collectors.toSet());
 
-        EnvironmentModel environmentAttributesModel = pip.getEnvironmentModel();
-
-        // Update current time in attributes
-        environmentAttributesModel.setCurrentTime(LocalTime.now());
-        LocalTime currentTime = environmentAttributesModel.getCurrentTime();
-        String currentDayOfWeek = environmentAttributesModel.getCurrentDayOfWeek().substring(0, 3);
+        // Get current time and day
+        LocalTime currentTime = pip.getCurrentTime();
+        String currentDayOfWeek = pip.getCurrentDayOfWeek();
 
         boolean isTimeWithinRange;
         if (startTime.isBefore(endTime)) {
